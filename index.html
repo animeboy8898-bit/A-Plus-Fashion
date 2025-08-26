@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>My Fashion Shop</title>
+  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#0ea5e9">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header glass">
+    <div class="brand">
+      <span class="logo-3d">🛍️</span>
+      <h1 id="siteName">My Fashion Shop</h1>
+    </div>
+    <div class="header-actions">
+      <button id="ownerBtn" class="btn icon" title="Owner login">🔒 Owner</button>
+      <button id="cartBtn" class="btn icon" title="Open cart">
+        🛒 <span id="cartCount" class="badge">0</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Pakistan-only banner -->
+  <div class="banner">
+    <strong>Pakistan only</strong> – Cash on Delivery • Currency: <strong>PKR (Rs)</strong>
+  </div>
+
+  <!-- Catalog -->
+  <main class="container">
+    <section id="catalog" class="catalog"></section>
+    <div id="emptyCatalog" class="empty hidden">
+      <p>No products yet.</p>
+      <p class="muted">Owner: click <strong>🔒 Owner</strong> to add products. Your products will appear here as boxes with name & price.</p>
+    </div>
+  </main>
+
+  <!-- Product Modal -->
+  <div id="productModal" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content pop">
+      <button class="close" data-close-modal>&times;</button>
+      <div class="modal-grid">
+        <div class="modal-media">
+          <img id="pmImage" src="" alt="Product image" />
+        </div>
+        <div class="modal-details">
+          <h2 id="pmName"></h2>
+          <div class="price" id="pmPrice"></div>
+          <div class="ship" id="pmShip"></div>
+          <p id="pmDesc" class="desc"></p>
+          <div class="qty-row">
+            <label>Qty</label>
+            <input id="pmQty" type="number" min="1" value="1" />
+          </div>
+          <div class="modal-actions">
+            <button id="pmAddToCart" class="btn primary">Add to Cart</button>
+            <button id="pmBuyNow" class="btn accent">Buy Now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner Login Modal -->
+  <div id="ownerLogin" class="modal hidden" role="dialog" aria-modal="true">
+    <div class="modal-content">
+      <button class="close" data-close-modal>&times;</button>
+      <h3>Owner Login</h3>
+      <p class="muted">Enter password to access customization & orders (default: <code>564321</code>).</p>
+      <input id="ownerPassInput" type="password" placeholder="Owner password" />
+      <button id="ownerLoginSubmit" class="btn primary">Login</button>
+    </div>
+  </div>
+
+  <!-- Owner Panel -->
+  <aside id="ownerPanel" class="panel hidden">
+    <div class="panel-inner">
+      <div class="panel-header">
+        <h3>Owner Panel</h3>
+        <div class="grow"></div>
+        <button id="ownerLogout" class="btn subtle">Logout</button>
+        <button id="closeOwnerPanel" class="btn icon" title="Close">&times;</button>
+      </div>
+
+      <div class="tabs">
+        <button class="tab active" data-tab="customize">Customize</button>
+        <button class="tab" data-tab="products">Products</button>
+        <button class="tab" data-tab="orders">Orders</button>
+      </div>
+
+      <!-- Customize tab -->
+      <section class="tab-panel" id="tab-customize">
+        <div class="grid-2">
+          <div class="card">
+            <h4>Store Identity</h4>
+            <label>Site Name</label>
+            <input id="cfgName" type="text" placeholder="Your brand name" />
+            <label>Primary Color</label>
+            <input id="cfgPrimary" type="color" value="#0ea5e9" />
+            <label>Accent Color</label>
+            <input id="cfgAccent" type="color" value="#22c55e" />
+            <button id="saveTheme" class="btn primary">Save Theme</button>
+          </div>
+
+          <div class="card">
+            <h4>Owner Security</h4>
+            <label>Change Owner Password</label>
+            <input id="cfgPass" type="password" placeholder="New password" />
+            <button id="savePass" class="btn">Update Password</button>
+            <p class="muted small">Owner features are local to this device/browser (no server). Keep your device safe.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Products tab -->
+      <section class="tab-panel hidden" id="tab-products">
+        <div class="grid-2">
+          <div class="card">
+            <h4>Add / Update Product</h4>
+            <input id="pId" type="hidden" />
+            <label>Product Name</label>
+            <input id="pName" type="text" placeholder="e.g., Oversized Tee" />
+            <label>Price (PKR)</label>
+            <input id="pPrice" type="number" min="0" step="1" placeholder="e.g., 2999" />
+            <label>Shipping Days</label>
+            <input id="pShip" type="number" min="1" max="30" value="4" />
+            <label>Description</label>
+            <textarea id="pDesc" rows="3" placeholder="Short description"></textarea>
+            <label>Image</label>
+            <input id="pImage" type="file" accept="image/*" />
+            <div class="row">
+              <button id="saveProduct" class="btn primary">Save Product</button>
+              <button id="resetProduct" class="btn subtle">Reset</button>
+            </div>
+          </div>
+          <div class="card">
+            <h4>Your Products</h4>
+            <div id="ownerProducts" class="list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Orders tab -->
+      <section class="tab-panel hidden" id="tab-orders">
+        <div class="card">
+          <h4>Orders (Cash on Delivery)</h4>
+          <div id="ordersList" class="list"></div>
+          <button id="exportOrders" class="btn">Export CSV</button>
+        </div>
+      </section>
+    </div>
+  </aside>
+
+  <!-- Cart Drawer -->
+  <aside id="cartDrawer" class="drawer hidden" aria-labelledby="cartTitle">
+    <div class="drawer-header">
+      <h3 id="cartTitle">Your Cart</h3>
+      <button id="closeCart" class="btn icon">&times;</button>
+    </div>
+    <div id="cartItems" class="list"></div>
+    <div class="drawer-footer">
+      <div class="total-row">
+        <span>Total</span>
+        <strong id="cartTotal">Rs 0</strong>
+      </div>
+      <button id="checkoutBtn" class="btn primary">Checkout</button>
+    </div>
+  </aside>
+
+  <!-- Checkout PAGES (SPA) -->
+  <section id="page-contact" class="page hidden">
+    <div class="page-inner">
+      <h2>Checkout</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h4>Contact</h4>
+          <label>Full Name</label>
+          <input id="cName" type="text" placeholder="Your name" />
+          <label>Phone Number</label>
+          <input id="cPhone1" type="tel" placeholder="03XXXXXXXXX" />
+          <label>Second Number (optional)</label>
+          <input id="cPhone2" type="tel" placeholder="Optional" />
+        </div>
+        <div class="card">
+          <h4>City (Pakistan)</h4>
+          <label>Continent</label>
+          <select id="cContinent" disabled>
+            <option>Asia</option>
+          </select>
+          <label>City</label>
+          <select id="cCity"></select>
+          <label class="muted small">All shipping is within Pakistan only.</label>
+        </div>
+      </div>
+      <div class="row end">
+        <button class="btn subtle" id="cancelCheckout1">Cancel</button>
+        <button class="btn primary" id="toArea">Next: Area</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-area" class="page hidden">
+    <div class="page-inner">
+      <h2>Select Area in <span id="chosenCity"></span></h2>
+      <div class="card">
+        <label>Area / Town</label>
+        <select id="cArea"></select>
+        <div class="or">or</div>
+        <label>Custom Area Name</label>
+        <input id="cAreaCustom" type="text" placeholder="Type your area if not listed" />
+      </div>
+      <div class="row between">
+        <button class="btn subtle" id="backToContact">Back</button>
+        <button class="btn primary" id="toAddress">Next: Address</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-address" class="page hidden">
+    <div class="page-inner">
+      <h2>Address</h2>
+      <div class="grid-2">
+        <div class="card">
+          <label>Full Address</label>
+          <textarea id="cAddress" rows="4" placeholder="House #, Street, Block..."></textarea>
+          <label>Mashoor Jagah (optional)</label>
+          <input id="cLandmark" type="text" placeholder="Famous nearby place" />
+        </div>
+        <div class="card">
+          <h4>Order Summary</h4>
+          <div id="summaryItems" class="list"></div>
+          <div class="total-row">
+            <span>Total</span>
+            <strong id="summaryTotal">Rs 0</strong>
+          </div>
+        </div>
+      </div>
+      <div class="row end">
+        <button class="btn subtle" id="backToArea">Back</button>
+        <button class="btn accent" id="placeOrder">Place Order (COD)</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="page-thanks" class="page hidden">
+    <div class="page-inner center">
+      <div class="big-emoji">✅</div>
+      <h2>Thanks for placing an order!</h2>
+      <p>Payment method: <strong>Cash on Delivery</strong>.</p>
+      <p id="orderIdRow">Order ID: <code id="orderId"></code></p>
+      <div class="card">
+        <h4>Email Sent (opens your email app)</h4>
+        <p class="muted small">We open your email app with a pre-filled message to <strong>animeboy8898@gmail.com</strong>. If it didn't open, tap the button below.</p>
+        <button id="sendEmailBtn" class="btn">Send Email Again</button>
+        <textarea id="emailPreview" rows="6" readonly></textarea>
+        <button id="copyEmail" class="btn subtle">Copy email text</button>
+      </div>
+      <button id="backHome" class="btn primary">Back to Shop</button>
+    </div>
+  </section>
+
+  <script src="script.js"></script>
+</body>
+</html>
